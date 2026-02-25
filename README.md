@@ -66,3 +66,137 @@ def tecla_presionada(e: ft.KeyboardEvent):
 
 page.on_keyboard_event = tecla_presionada
 ```
+### 1.3 Manejo de Eventos (Event Handling)
+#### El modelo de delegación en Flet
+Flet sigue el modelo clásico de delegación de eventos: cada control expone propiedades que aceptan funciones (callables) como manejadores. Cuando el evento ocurre, Flet invoca la función asociada, pasándole un objeto con información del evento. El programador solo debe definir la función y asignarla a la propiedad correspondiente.
+#### Registro de manejadores
+Existen varias formas de registrar manejadores en Flet:
+#### Función nombrada:
+```bash
+def boton_clickado(e):
+    print("Botón clickeado")
+
+btn = ft.ElevatedButton("Haz clic", on_click=boton_clickado)
+```
+#### Función lambda:
+```bash
+btn = ft.ElevatedButton("Haz clic", on_click=lambda e: print("Clic"))
+```
+#### Manejador asíncrono:
+Cuando se necesita ejecutar operaciones asíncronas (como llamadas a redes o temporizadores), se define la función como async y se pueden usar await.
+```bash
+async def boton_clickado(e):
+    await alguna_operacion_asincrona()
+    page.add(ft.Text("Operación completada"))
+```
+#### La fuente del evento y el objeto `e`
+Dentro del manejador, el parámetro `e` (de tipo `ft.ControlEvent` o una subclase) proporciona acceso al control que disparó el evento mediante `e.control`. Esto es especialmente útil cuando varios controles comparten el mismo manejador, ya que se puede diferenciar la acción consultando propiedades como `e.control.text` o `e.control.data`.
+```bash
+def menu_clickado(e):
+    opcion = e.control.data
+    if opcion == "nuevo":
+        crear_nuevo()
+    elif opcion == "abrir":
+        abrir_archivo()
+```
+#### La importancia de `page.update()`
+Un aspecto fundamental en Flet es que los cambios en las propiedades de los controles no se reflejan automáticamente en la interfaz. Después de modificar una propiedad (como `text`, `value`, `disabled`, `visible`), es necesario llamar a `page.update()` (o al método `update()` del propio control) para que los cambios se sincronicen con la vista renderizada por Flutter. Este mecanismo permite optimizar las actualizaciones agrupando múltiples modificaciones antes de una sola llamada a `update()`.
+```bash
+def incrementar(e):
+    contador.value = int(contador.value) + 1
+    page.update()  # Aquí se actualiza la interfaz
+```
+#### Manejo de estado
+El estado de la aplicación se gestiona normalmente mediante variables en el ámbito de la función `main` o en clases que heredan de `ft.UserControl`. Cada vez que se modifica una variable que afecta a la UI, se debe llamar a `update()` para que los cambios sean visibles. Este modelo imperativo es sencillo y directo, y se adapta bien a aplicaciones de tamaño pequeño a mediano.
+
+### 1.4 Manejo de Componentes Gráficos de Control
+#### Operaciones comunes sobre controles
+Flet permite manipular los controles en tiempo de ejecución mediante sus propiedades y métodos. Las operaciones más habituales incluyen:
+#### Cambiar contenido:
+* `control.value = nuevo_valor` para actualizar el texto o valor de un control.
+* `control.text = nuevo_texto` en botones, etiquetas, etc.
+#### Habilitar/deshabilitar:
+* `control.disabled = True` para desactivar un control (se atenúa y no responde a eventos).
+#### Mostrar/ocultar:
+* `control.visible = False` para ocultar un control. Los controles ocultos no ocupan espacio en el layout (a diferencia de otros frameworks donde pueden seguir ocupando espacio).
+#### Cambiar apariencia:
+* `control.bgcolor = ft.Colors.BLUE` cambia el color de fondo.
+* `control.color = ft.Colors.WHITE` cambia el color del texto.
+* `control.width = 200, control.height = 50` redimensionan el control.
+#### Gestionar opciones de listas:
+Para `Dropdown`, se puede modificar la lista options añadiendo o quitando elementos: `dropdown.options.append(ft.dropdown.Option("nuevo"))`.
+#### Forzar actualización:
+`control.update()` actualiza solo ese control, más eficiente que `page.update()` cuando solo un elemento ha cambiado.
+#### Uso de la propiedad data
+Una práctica común en Flet es utilizar la propiedad data de los controles para almacenar información adicional que ayude a identificar su propósito. Esto es especialmente útil cuando varios controles comparten el mismo manejador de eventos. Por ejemplo, en una calculadora, todos los botones numéricos pueden usar el mismo manejador y distinguirse mediante data:
+```bash
+ft.ElevatedButton("7", on_click=boton_numero, data="7")
+ft.ElevatedButton("8", on_click=boton_numero, data="8")
+```
+#### En el manejador:
+```bash
+def boton_numero(e):
+    digito = e.control.data
+    pantalla.value += digito
+    pantalla.update()
+```
+#### Creación de componentes reutilizables con `UserControl`
+Para aplicaciones más grandes, Flet ofrece la clase `ft.UserControl`, que permite encapsular un conjunto de controles y su lógica en un componente reutilizable. Un `UserControl` debe implementar el método `build()` que devuelve la estructura de la interfaz. También puede tener su propio estado y métodos.
+Ejemplo de un contador reutilizable:
+```basg
+class Contador(ft.UserControl):
+    def __init__(self, valor_inicial=0):
+        super().__init__()
+        self.valor = valor_inicial
+
+    def build(self):
+        self.texto = ft.Text(str(self.valor))
+        self.boton = ft.ElevatedButton("Incrementar", on_click=self.incrementar)
+        return ft.Column([self.texto, self.boton])
+
+    def incrementar(self, e):
+        self.valor += 1
+        self.texto.value = str(self.valor)
+        self.update()
+```
+Luego, este componente se puede instanciar múltiples veces en la misma página:
+```bash
+page.add(Contador(), Contador(5))
+```
+Ciclo de vida de un `UserControl`
+Los `UserControl` tienen métodos especiales que se invocan en momentos clave:
+* `did_mount()`: se ejecuta después de que el componente se ha añadido a la página. Ideal para iniciar tareas asíncronas o cargar datos.
+* `will_unmount()`: se ejecuta justo antes de que el componente sea removido. Útil para liberar recursos, cancelar temporizadores o suscripciones.
+Estos métodos permiten un control fino sobre el ciclo de vida, esencial en aplicaciones complejas.
+```bash
+class Temporizador(ft.UserControl):
+    def did_mount(self):
+        self.running = True
+        self.page.run_task(self.actualizar_cada_segundo)
+
+    async def actualizar_cada_segundo(self):
+        while self.running:
+            await asyncio.sleep(1)
+            self.actualizar_reloj()
+            self.update()
+
+    def will_unmount(self):
+        self.running = False
+```
+#### Arquitectura de aplicaciones con Flet
+Para proyectos de mayor envergadura, se pueden adoptar patrones arquitectónicos como la separación en capas (core, gui, eventos) o un sistema de comunicación basado en eventos (pub/sub). Proyectos comunitarios como flet-app-base-architecture muestran cómo organizar el código en módulos, separando la lógica de negocio de la interfaz y utilizando eventos personalizados para la comunicación entre componentes. Aunque no es obligatorio, estas prácticas mejoran la mantenibilidad y escalabilidad de las aplicaciones.
+
+### Conclusión
+A lo largo de esta unidad, hemos explorado los fundamentos teóricos de las interfaces gráficas de usuario y hemos visto cómo se materializan en Flet, un framework que acerca la potencia de Flutter a los desarrolladores de Python. Hemos aprendido a construir interfaces mediante un árbol de controles, a manejar los distintos tipos de eventos que pueden ocurrir, a escribir manejadores que respondan a esos eventos y a manipular los componentes gráficos en tiempo de ejecución. Además, hemos conocido técnicas avanzadas como la creación de componentes reutilizables con `UserControl` y la gestión del ciclo de vida. Con estas bases, estamos preparados para desarrollar aplicaciones interactivas, modernas y multiplataforma de manera eficiente.
+
+Referencias Bibliograficas 
+* Flet. (n.d.). Introduction. Flet.dev. Retrieved February 25, 2026, from https://docs.flet.dev
+* flet: Flet enables developers to easily build realtime web, mobile and desktop apps in Python. No frontend experience required. (n.d.).
+* Flet. (n.d.-a). PyPI. Retrieved February 25, 2026, from https://pypi.org/project/flet/
+
+
+
+
+
+
+
