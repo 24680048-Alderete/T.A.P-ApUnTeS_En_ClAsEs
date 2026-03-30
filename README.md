@@ -195,6 +195,10 @@ Referencias Bibliograficas
 * Flet. (n.d.-a). PyPI. Retrieved February 25, 2026, from https://pypi.org/project/flet/
 
 
+## Unidad 2: Componentes y Librerías
+
+En el desarrollo de software moderno, la reutilización de código y la modularización son pilares fundamentales para construir aplicaciones escalables, mantenibles y eficientes. En este contexto, los componentes y las librerías juegan un papel esencial. A continuación se desarrollan los temas teóricos de la unidad, complementados con ejemplos prácticos extraídos de los fragmentos de código proporcionados.
+
 
 
 
