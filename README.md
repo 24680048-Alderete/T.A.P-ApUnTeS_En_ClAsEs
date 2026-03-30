@@ -198,9 +198,169 @@ Referencias Bibliograficas
 ## Unidad 2: Componentes y Librerías
 
 En el desarrollo de software moderno, la reutilización de código y la modularización son pilares fundamentales para construir aplicaciones escalables, mantenibles y eficientes. En este contexto, los componentes y las librerías juegan un papel esencial. A continuación se desarrollan los temas teóricos de la unidad, complementados con ejemplos prácticos extraídos de los fragmentos de código proporcionados.
+### 2.1 Definición conceptual de componentes, paquetes / librerías
+#### Componentes:
+Un componente es una unidad de software independiente, reutilizable y con una interfaz bien definida. Encapsula un conjunto de funcionalidades (lógica, presentación o ambas) que puede ser integrada en diferentes contextos sin modificar su implementación interna. En el desarrollo de interfaces gráficas, los componentes suelen ser elementos visuales como botones, campos de texto o tarjetas, pero también pueden ser no visuales (ej. un componente que maneja autenticación o conexiones a bases de datos).
+- Ejemplo en el código: la clase `TarjetaPerfil` (Flet) es un componente visual personalizado que agrupa texto, un rol y un botón, encapsulando su apariencia y comportamiento.
+#### Librerías:
+Una librería es una colección de componentes, funciones y clases que ofrecen un conjunto de servicios específicos para facilitar el desarrollo. Su propósito es proporcionar funcionalidades comunes (manejo de gráficos, peticiones HTTP, interfaces de usuario, etc.) de manera que el programador no tenga que implementarlas desde cero. Las librerías pueden ser internas (proporcionadas por el lenguaje) o externas (de terceros).
 
+#### Paquetes:
+Un paquete es una forma de organizar módulos relacionados (librerías, subpaquetes) bajo un espacio de nombres común. Facilita la distribución, instalación y gestión de dependencias. En Python, un paquete es una carpeta que contiene un archivo `__init__.py` y uno o más módulos. Herramientas como pip permiten instalar paquetes desde repositorios como PyPI.
+### 2.2 Uso de librerías proporcionadas por el lenguaje
+Los lenguajes de programación modernos incluyen una biblioteca estándar (standard library) que ofrece funcionalidades esenciales sin necesidad de instalar dependencias externas. En Python, la biblioteca estándar incluye módulos como `math`, `datetime`, `json`, `random`, `matplotlib` (aunque matplotlib no es parte de la stdlib, es una librería externa muy popular).
 
+En los códigos proporcionados se observa el uso de:
+- Flet: librería externa para construir interfaces de usuario multiplataforma. Se utiliza para crear la ventana principal (`ft.app(target=main)`) y los controles (`ft.Text`, `ft.Row`, etc.).
+- Matplotlib: librería externa para visualización de datos. Las funciones `generator_grafica_barras`, `generator_grafica_lineas` y `generator_grafica_dispersion` emplean `matplotlib.pyplot` para generar gráficos estáticos.
+- Plotly: aunque se importa (`import plotly.graph_objects as go`), no se usa directamente en los fragmentos; podría estar planeado para gráficos interactivos.
+- Random: módulo de la biblioteca estándar utilizado en `generator_grafica_dispersion` para generar valores aleatorios.
 
+El uso de estas librerías permite enfocarse en la lógica de negocio (gestión de usuarios, visualización de datos) sin tener que escribir código de bajo nivel para dibujar ventanas o gráficos.
+### 2.3 Creación de componentes (visuales y no visuales) definidos por el usuario
+Los desarrolladores pueden crear sus propios componentes para encapsular comportamientos y apariencias recurrentes. Esto promueve la reutilización y facilita el mantenimiento.
+#### Componentes visuales
+Son aquellos que tienen una representación gráfica en la interfaz de usuario. En el código se define la clase `TarjetaPerfil` que hereda de `ft.Container`. Este componente:
 
+- Tiene atributos configurables (`nombre`, `rol`, `color_borde`).
+- Define internamente la estructura visual: un Column con un nombre en negrita, un rol en cursiva y un botón.
+- Encapsula comportamiento: el botón llama al método saludar que imprime un mensaje.
+- Se instancia varias veces (`usuario1`, `usuario2`) con diferentes datos, mostrando la reutilización.
 
+#### Componentes no visuales
+No tienen interfaz gráfica, pero ofrecen lógica o servicios. En el segundo bloque de código, aunque no se muestra explícitamente una clase no visual, se podría considerar que las funciones `generator_grafica_*` actúan como componentes no visuales (son unidades de funcionalidad reutilizables). También se podría crear un componente que maneje la conexión a una base de datos, un logger, etc.
+Principios importantes:
+- Encapsulamiento: los detalles internos del componente (estado, lógica) están ocultos; se expone solo una interfaz clara (constructor, métodos públicos).
+- Configurabilidad: el componente acepta parámetros para adaptarse a distintos contextos.
+- Reutilización: puede ser utilizado en múltiples partes de la aplicación sin modificar su código fuente.
 
+#### Componente visual: `TarjetaPerfil`
+El código define una clase `TarjetaPerfil` que hereda de `ft.Container` (un componente base de Flet). Este componente visual muestra información de un usuario y un botón que dispara una acción.
+#### Código 
+```python
+import flet as ft
+
+class TarjetaPerfil(ft.Container):
+    def __init__(self, nombre, rol, color_borde=ft.Colors.BLUE):
+        super().__init__()
+        # Contenido: columna con texto y botón
+        self.content = ft.Column(
+            controls=[
+                ft.Text(nombre, weight=ft.FontWeight.BOLD, size=20),
+                ft.Text(rol, italic=True),
+                ft.ElevatedButton("Ver Perfil", on_click=self.saludar)
+            ],
+            tight=True
+        )
+        # Estilo del borde
+        self.border = ft.border.all(2, color_borde)
+        self.padding = 10
+        self.border_radius = 10
+        self.width = 200
+
+    def saludar(self, e):
+        # Accede al primer texto (nombre) desde los controles de la columna
+        nombre = self.content.controls[0].value
+        print(f"Interactuando con el componente de {nombre}")
+
+def main(page: ft.Page):
+    page.title = "Unidad 2: Componentes Definidos por el Usuario"
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    usuario1 = TarjetaPerfil("Ana García", "Desarrolladora Senior", ft.Colors.GREEN)
+    usuario2 = TarjetaPerfil("Carlos Ruiz", "Arquitecto de Software")
+
+    page.add(
+        ft.Text("Lista de Usuarios", size=30, weight="bold"),
+        ft.Row([usuario1, usuario2], alignment=ft.MainAxisAlignment.CENTER)
+    )
+
+ft.app(target=main)
+``` 
+#### Explicación paso a paso
+1. Herencia: `class TarjetaPerfil(ft.Container)`
+   Se parte de un contenedor base de Flet, lo que permite agregar bordes, padding, etc.
+2. Constructor `__init__`:
+   - Recibe parámetros `nombre`, `rol` y `color_borde` (con valor por defecto).
+   - Llama a `super().__init__()` para inicializar la clase padre.
+   - Define `self.content` como una columna vertical (`ft.Column`) que contiene tres controles: dos textos y un botón.
+   - Configura propiedades visuales del contenedor: `border`, `padding`, `border_radius`, `width`.
+3. Método `saludar`:
+   - Es el manejador del evento `on_click` del botón.
+   - Extrae el nombre del primer control de la columna (`self.content.controls[0].value`).
+   - Imprime un mensaje en la consola.
+   - Este método es parte del componente y puede ser sobreescrito o extendido en subclases.
+4. Instanciación y uso:
+   - `usuario1` y `usuario2` son objetos independientes, cada uno con sus propios datos.
+   - Se agregan a un `Row` y luego a la página, demostrando reutilización.
+#### Ventajas de este enfoque
+- Encapsulamiento: la lógica y el estilo están dentro de la clase; el código que usa el componente solo necesita conocer su interfaz (parámetros del constructor).
+- Configurabilidad: se pueden cambiar datos y colores en cada instancia sin modificar la clase.
+- Mantenibilidad: si se desea cambiar la apariencia o el comportamiento de todas las tarjetas, se modifica un solo lugar.
+
+#### Componente no visual: `ValidadorPerfil`
+Los componentes no visuales encapsulan lógica de negocio, validaciones, servicios, etc. No tienen representación gráfica pero pueden ser utilizados por componentes visuales o directamente en la lógica de la aplicación.
+#### Código validador de datos de perfil
+```python
+class ValidadorPerfil:
+    def __init__(self, nombre, rol):
+        self.nombre = nombre
+        self.rol = rol
+
+    def validar(self):
+        """Retorna (booleano, mensaje) indicando si los datos son válidos."""
+        if not self.nombre or len(self.nombre) < 2:
+            return False, "El nombre debe tener al menos 2 caracteres"
+        if not self.rol:
+            return False, "El rol no puede estar vacío"
+        return True, "Datos válidos"
+
+# Uso dentro de un componente visual (por ejemplo, antes de crear la tarjeta)
+validador = ValidadorPerfil("Ana", "")
+es_valido, mensaje = validador.validar()
+if not es_valido:
+    print(f"Error: {mensaje}")
+else:
+    tarjeta = TarjetaPerfil("Ana", "Desarrolladora")
+```
+Este componente no visual se puede reutilizar en distintas partes de la aplicación (formularios, APIs, etc.) sin necesidad de duplicar la lógica de validación.
+#### Ventajas de los componentes no visuales
+- Separación de responsabilidades: la lógica de negocio se aísla de la interfaz de usuario.
+- Testabilidad: es más fácil escribir pruebas unitarias para una clase que no depende de la interfaz gráfica.
+- Reutilización: pueden ser usados tanto en aplicaciones de escritorio como web, móviles o scripts de consola.
+### 2.4 Creación y uso de paquetes/librerías definidas por el usuario
+Cuando un proyecto crece, es conveniente organizar los componentes y funciones en paquetes reutilizables, incluso compartibles entre diferentes proyectos o con la comunidad.
+#### Estructura De Un Paquete En Python
+```text
+mi_libreria/
+├── __init__.py          # Indica que la carpeta es un paquete
+├── componentes/
+│   ├── __init__.py
+│   └── tarjeta_perfil.py   # Contiene la clase TarjetaPerfil
+├── graficas/
+│   ├── __init__.py
+│   └── generadores.py      # Contiene las funciones de gráficas
+└── utils/
+    ├── __init__.py
+    └── helpers.py
+```
+#### Creación
+- Se define una estructura de carpetas con archivos `__init__.py` (pueden estar vacíos o contener código de inicialización).
+- Se escriben los módulos con las clases y funciones.
+- Se añade un archivo `setup.py` o `pyproject.toml` para especificar metadatos y dependencias, permitiendo instalar el paquete con `pip install -e .` (modo desarrollo).
+#### Uso
+Una vez instalado, se puede importar:
+```python
+from mi_libreria.componentes.tarjeta_perfil import TarjetaPerfil
+from mi_libreria.graficas.generadores import generator_grafica_barras
+
+usuario = TarjetaPerfil("María", "Analista")
+fig = generator_grafica_barras()
+```
+#### Ventajas
+- Modularidad: separación clara de responsabilidades.
+- Reutilización: el mismo paquete puede usarse en múltiples aplicaciones.
+- Mantenimiento: cambios en una parte no afectan al resto si la interfaz se mantiene estable.
+- Colaboración: facilita el trabajo en equipo y la distribución.
+### Concñusión
+La comprensión y aplicación de componentes, librerías y paquetes es esencial en la programación avanzada. Permiten construir software más limpio, reutilizable y escalable. Los ejemplos mostrados (componentes visuales en Flet, funciones generadoras de gráficas con matplotlib) ilustran cómo aplicar estos conceptos en la práctica. Al extender estas ideas hacia la creación de paquetes propios, el desarrollador adquiere la capacidad de organizar su código de manera profesional y compartir sus soluciones con la comunidad.
