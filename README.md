@@ -362,5 +362,5 @@ fig = generator_grafica_barras()
 - Reutilización: el mismo paquete puede usarse en múltiples aplicaciones.
 - Mantenimiento: cambios en una parte no afectan al resto si la interfaz se mantiene estable.
 - Colaboración: facilita el trabajo en equipo y la distribución.
-### Concñusión
+### Conclusión
 La comprensión y aplicación de componentes, librerías y paquetes es esencial en la programación avanzada. Permiten construir software más limpio, reutilizable y escalable. Los ejemplos mostrados (componentes visuales en Flet, funciones generadoras de gráficas con matplotlib) ilustran cómo aplicar estos conceptos en la práctica. Al extender estas ideas hacia la creación de paquetes propios, el desarrollador adquiere la capacidad de organizar su código de manera profesional y compartir sus soluciones con la comunidad.
