@@ -189,7 +189,7 @@ Para proyectos de mayor envergadura, se pueden adoptar patrones arquitectónicos
 ### Conclusión
 A lo largo de esta unidad, hemos explorado los fundamentos teóricos de las interfaces gráficas de usuario y hemos visto cómo se materializan en Flet, un framework que acerca la potencia de Flutter a los desarrolladores de Python. Hemos aprendido a construir interfaces mediante un árbol de controles, a manejar los distintos tipos de eventos que pueden ocurrir, a escribir manejadores que respondan a esos eventos y a manipular los componentes gráficos en tiempo de ejecución. Además, hemos conocido técnicas avanzadas como la creación de componentes reutilizables con `UserControl` y la gestión del ciclo de vida. Con estas bases, estamos preparados para desarrollar aplicaciones interactivas, modernas y multiplataforma de manera eficiente.
 
-Referencias Bibliograficas 
+### Referencias Bibliograficas 
 * Flet. (n.d.). Introduction. Flet.dev. Retrieved February 25, 2026, from https://docs.flet.dev
 * flet: Flet enables developers to easily build realtime web, mobile and desktop apps in Python. No frontend experience required. (n.d.).
 * Flet. (n.d.-a). PyPI. Retrieved February 25, 2026, from https://pypi.org/project/flet/
@@ -364,3 +364,14 @@ fig = generator_grafica_barras()
 - Colaboración: facilita el trabajo en equipo y la distribución.
 ### Conclusión
 La comprensión y aplicación de componentes, librerías y paquetes es esencial en la programación avanzada. Permiten construir software más limpio, reutilizable y escalable. Los ejemplos mostrados (componentes visuales en Flet, funciones generadoras de gráficas con matplotlib) ilustran cómo aplicar estos conceptos en la práctica. Al extender estas ideas hacia la creación de paquetes propios, el desarrollador adquiere la capacidad de organizar su código de manera profesional y compartir sus soluciones con la comunidad.
+### Referencias Bibliograficas  
+- Client challenge. (s/f). Scribd.com. Recuperado el 30 de marzo de 2026, de https://es.scribd.com/document/643313980/Librerias-en-Python
+- Flet. (s/f). Introduction. Flet.dev. Recuperado el 30 de marzo de 2026, de https://flet.dev/docs/es/guides/custom-controls
+- 6. Módulos. (s/f). Python documentation. Recuperado el 30 de marzo de 2026, de https://docs.python.org/es/3/tutorial/modules.html
+- Desarrollo de Interfaces de Usuario con Flet - Aplicaciones de IA con Python y Flet - Aplicaciones de IA con Python y Flet. (s/f). Oboe. Recuperado el 30 de marzo de 2026, de https://oboe.com/learn/aplicaciones-de-ia-con-python-y-flet 1gf65u4/desarrollo-de-interfaces-de-usuario-con-flet-3
+
+
+
+
+
+
